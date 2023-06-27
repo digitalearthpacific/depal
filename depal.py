@@ -14,7 +14,6 @@ import planetary_computer as pc
 from pystac.extensions.projection import ProjectionExtension as proj
 import numpy as np
 import xarray as xr
-import rasterio.features
 import xrspatial.multispectral as ms
 import stackstac
 from dask_gateway import GatewayCluster
@@ -22,6 +21,11 @@ from dask.distributed import Client
 from dask.distributed import LocalCluster
 import matplotlib.pyplot as plt
 from collections import OrderedDict
+from shapely.geometry import shape
+import rioxarray
+from rasterio.crs import CRS
+from rasterio.plot import show
+import rasterio.features
 
 #global
 padm = gpd.read_file("padm.gpkg", layer='padm')
@@ -38,13 +42,13 @@ cluster = LocalCluster()
 client = Client(cluster)
 
 #Remote Dask
-def setup_dask(maxWorkers):
+def setup_dask(maxWorkers=2):
     cluster = GatewayCluster()
     client = cluster.get_client()
     cluster.adapt(minimum=1, maximum=maxWorkers)
     
 def get_area__from_geojson(geojson_file):
-    local =  gpd.read_file('fiji_tavua.geojson')
+    local =  gpd.read_file(geojson_file)
     area_of_interest = local.geometry[0]
     return area_of_interest
 
@@ -89,6 +93,7 @@ def list_data_assets(collection_name):
     ]
     return data
 
+#needs improvement, flexibility
 def visualise(data):
     data.plot.imshow(x="x", y="y", col="time", col_wrap=5)    
 
@@ -125,7 +130,7 @@ def get_latest_images(aoi, collection_name="sentinel-2-l2a", timeframe="2023-01-
             ),  # round time to daily for nicer plot labels
         )
     )
-    data = data.groupby("time." + period).median().compute()
+    data = data.groupby("time." + period).median(keep_attrs=True).compute()
     true_color_aggs = [
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
@@ -166,13 +171,16 @@ def get_cloudless_mosaic(aoi, collection_name="sentinel-2-l2a", timeframe="2019-
             ),  # round time to daily for nicer plot labels
         )
     )
-    data = data.groupby("time." + period).median().compute()
+    data = data.groupby("time." + period).median(keep_attrs=True).compute()
     median_aggs = [
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
     ]
     median_composite = xr.concat(median_aggs, dim="time")   
     return median_composite
+
+def save(data, file_name):
+    data.rio.to_raster(file_name + ".tif", driver="COG", dtype="int16")
 
 def get_ndvi(aoi, collection_name="sentinel-2-l2a", timeframe="2019-11-01/2022-11-31", cloudcover=10, resolution=default_resolution, period="month"):
     pass
@@ -187,7 +195,4 @@ def get_gci(aoi, collection_name="sentinel-2-l2a", timeframe="2019-11-01/2022-11
     pass
 
 
-
-
-# test
 
