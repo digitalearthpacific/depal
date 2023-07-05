@@ -366,7 +366,7 @@ def get_ndmi(
         max=max,
         period=period,
     )
-    median_aggs = [ms.ndmi(x.sel(band="nir"), x.sel(band="swir1")) for x in data]
+    median_aggs = [ms.ndmi(x.sel(band="nir"), x.sel(band="swir16")) for x in data]
     ndmi = xr.concat(median_aggs, dim="time")
     return ndmi
 
