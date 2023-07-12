@@ -17,3 +17,4 @@
    import warnings
    warnings.filterwarnings('ignore')
    ```
+7. Refer to https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf for DEPAL API and Functions.
