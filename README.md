@@ -17,6 +17,8 @@ by Pacific Island Countrie's national, maritime and administrative boundaries, r
 undertaking multi spectral analysis like NDVI and creating cloud composites, etc. DEP will continue to extend
 and simplify the abstraction library based on end-user feedback.
 
+See [Usage](https://github.com/digitalearthpacific/depal/blob/main/doc/usage.md) to get started.
+
 
 
 
