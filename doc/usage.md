@@ -6,15 +6,16 @@
 1. Login to https://dep-staging.westeurope.cloudapp.azure.com/ with your provisioned access.
 2. Open terminal by clicking File, New -> Terminal
 3. Clone the DEPAL library repository by copying and pasting the following command:
+   
    `git clone https://github.com/digitalearthpacific/depal`
-4. Change into the depal folder by running in the terminal:
+5. Change into the depal folder by running in the terminal:
    `cd depal`
-5. Create a new notebook by clicking FIle, New -> Notebook
-6. Copy and paste the following into the first cell to start using DEPAL:
+6. Create a new notebook by clicking FIle, New -> Notebook
+7. Copy and paste the following into the first cell to start using DEPAL:
    
    ```
    import depal as dep
    import warnings
    warnings.filterwarnings('ignore')
    ```
-7. Refer to https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf for DEPAL API and Functions.
+8. Refer to https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf for DEPAL API and Functions.
