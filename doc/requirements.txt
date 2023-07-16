@@ -1,0 +1,15 @@
+geopandas
+matplotlib
+numpy
+planetary_computer
+pandas
+matplotlib
+pystac_client
+rasterio
+stackstac
+xarray
+xarray-spatial
+dask[distributed]
+dask-gateway
+rioxarray
+

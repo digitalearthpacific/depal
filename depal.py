@@ -6,22 +6,26 @@ __version__ = "0.0.1"
 __email__ = "sachindras@spc.int"
 __status__ = "Development"
 
-from collections import OrderedDict
-
 import geopandas as gpd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import planetary_computer as pc
 import pystac_client as pystac
-import rasterio.features
-import stackstac
+import planetary_computer as pc
+from pystac.extensions.projection import ProjectionExtension as proj
+import numpy as np
 import xarray as xr
 import xrspatial.multispectral as ms
-from dask.distributed import Client, LocalCluster
+import stackstac
 from dask_gateway import GatewayCluster
-from pystac.extensions.projection import ProjectionExtension as proj
+from dask.distributed import Client
+from dask.distributed import LocalCluster
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from collections import OrderedDict
+from shapely.geometry import shape
+import rioxarray
+from rasterio.crs import CRS
+from rasterio.plot import show
+import rasterio.features
 
 # global
 padm = gpd.read_file("padm.gpkg", layer="padm")
@@ -33,20 +37,18 @@ pd.set_option("display.max_colwidth", None)
 default_resolution = 100
 chunk_size = 4096
 
-print("Initiating DEPAL...")
 
-# configure dask defaults
-# Local Dask
-cluster = LocalCluster()
-client = Client(cluster)
-print(client)
-
-
-# Remote Dask
-def setup_dask(maxWorkers=2):
-    cluster = GatewayCluster()
-    client = cluster.get_client()
-    cluster.adapt(minimum=1, maximum=maxWorkers)
+# Initialise and configure Dask and resolution defaults
+def init(type="local", maxWorkers=2, resolution=100):
+    print("Initiating DEPAL...")
+    default_resolution = resolution
+    if type == "local":
+        cluster = LocalCluster()
+        client = Client(cluster)
+    if type == "remote":
+        cluster = GatewayCluster()
+        client = cluster.get_client()
+        cluster.adapt(minimum=1, maximum=maxWorkers)
     print(client)
 
 
@@ -83,7 +85,11 @@ def list_country_boundary(country, admin_type):
     return pd.DataFrame(data)
 
 
-def get_country_boundary(country, admin_type, admin):
+def get_country_boundary(country):
+    pass
+
+
+def get_country_admin_boundary(country, admin_type, admin):
     cadm = padm[padm["country"] == country]
     admin_types = (
         cadm["type_1"].unique().tolist()
@@ -205,7 +211,6 @@ def get_latest_images(
         max=max,
         period=period,
     )
-
     true_color_aggs = [
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
@@ -288,7 +293,7 @@ def get_evi(
         period=period,
     )
     median_aggs = [
-        ms.evi(x.sel(band="nir"), x.sel(band="red"), x.sel(band="blue")) for x in data
+        ms.evi(x.sel(band="nir"), x.sel(band="blue"), x.sel(band="red")) for x in data
     ]
     evi = xr.concat(median_aggs, dim="time")
     return evi
@@ -376,6 +381,7 @@ def smooth(data):
     return data
 
 
+# clip coastal buffer
 def coastal_clip(aoi, data):
     return data
 

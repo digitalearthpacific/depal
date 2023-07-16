@@ -5,7 +5,7 @@
 <title>Pydoc: module depal</title>
 <link rel="stylesheet" type="text/css" href="pydoc_data/_pydoc.css"></head><body>
             <div style='float:left'>
-                Python 3.11.3 [main, GCC 13.1.1 20230429]<br>Linux-6.4.2-arch1-1-x86_64-with-glibc2.37
+                Python 3.11.3 [main, GCC 13.1.1 20230429]<br>Linux-6.4.3-arch1-1-x86_64-with-glibc2.37
             </div>
             <div style='float:right'>
                 <div style='text-align:center'>
@@ -45,7 +45,8 @@
 </td><td class="multicolumn"><a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
 <a href="pystac_client.html">pystac_client</a><br>
 <a href="rasterio.html">rasterio</a><br>
-</td><td class="multicolumn"><a href="stackstac.html">stackstac</a><br>
+</td><td class="multicolumn"><a href="rioxarray.html">rioxarray</a><br>
+<a href="stackstac.html">stackstac</a><br>
 <a href="xarray.html">xarray</a><br>
 </td></tr></table></td></tr></table><p>
 <table class="section">
@@ -53,11 +54,12 @@
 <td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
     
 <tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
-<td class="singlecolumn"><dl><dt><a name="-coastal_clip"><strong>coastal_clip</strong></a>(aoi, data)</dt></dl>
+<td class="singlecolumn"><dl><dt><a name="-coastal_clip"><strong>coastal_clip</strong></a>(aoi, data)</dt><dd><span class="code">#&nbsp;clip&nbsp;coastal&nbsp;buffer</span></dd></dl>
  <dl><dt><a name="-colour_maps"><strong>colour_maps</strong></a>()</dt></dl>
  <dl><dt><a name="-get_area_from_geojson"><strong>get_area_from_geojson</strong></a>(geojson_file)</dt><dd><span class="code">#&nbsp;AOI&nbsp;from&nbsp;GeoJson&nbsp;File&nbsp;(use&nbsp;geojson.io)</span></dd></dl>
  <dl><dt><a name="-get_cloudless_mosaic"><strong>get_cloudless_mosaic</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='yearly')</dt><dd><span class="code">#&nbsp;median&nbsp;composite</span></dd></dl>
- <dl><dt><a name="-get_country_boundary"><strong>get_country_boundary</strong></a>(country, admin_type, admin)</dt></dl>
+ <dl><dt><a name="-get_country_admin_boundary"><strong>get_country_admin_boundary</strong></a>(country, admin_type, admin)</dt></dl>
+ <dl><dt><a name="-get_country_boundary"><strong>get_country_boundary</strong></a>(country)</dt></dl>
  <dl><dt><a name="-get_data"><strong>get_data</strong></a>(aoi, bands=[], collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='monthly')</dt><dd><span class="code">#&nbsp;xarray&nbsp;dataset&nbsp;from&nbsp;stac</span></dd></dl>
  <dl><dt><a name="-get_evi"><strong>get_evi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;evi</span></dd></dl>
  <dl><dt><a name="-get_gci"><strong>get_gci</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;gci</span></dd></dl>
@@ -66,6 +68,7 @@
  <dl><dt><a name="-get_ndmi"><strong>get_ndmi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndmi</span></dd></dl>
  <dl><dt><a name="-get_ndvi"><strong>get_ndvi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndvi</span></dd></dl>
  <dl><dt><a name="-get_sipi"><strong>get_sipi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;sipi</span></dd></dl>
+ <dl><dt><a name="-init"><strong>init</strong></a>(type='local', maxWorkers=2, resolution=100)</dt><dd><span class="code">#&nbsp;Initialise&nbsp;and&nbsp;configure&nbsp;Dask&nbsp;and&nbsp;resolution&nbsp;defaults</span></dd></dl>
  <dl><dt><a name="-list_boundary_types"><strong>list_boundary_types</strong></a>(country)</dt></dl>
  <dl><dt><a name="-list_countries"><strong>list_countries</strong></a>()</dt></dl>
  <dl><dt><a name="-list_country_boundary"><strong>list_country_boundary</strong></a>(country, admin_type)</dt></dl>
@@ -74,7 +77,6 @@
  <dl><dt><a name="-list_data_sources"><strong>list_data_sources</strong></a>()</dt></dl>
  <dl><dt><a name="-list_global_land_cover"><strong>list_global_land_cover</strong></a>()</dt></dl>
  <dl><dt><a name="-save"><strong>save</strong></a>(data, file_name)</dt><dd><span class="code">#&nbsp;save&nbsp;data&nbsp;as&nbsp;COG&nbsp;series</span></dd></dl>
- <dl><dt><a name="-setup_dask"><strong>setup_dask</strong></a>(maxWorkers=2)</dt><dd><span class="code">#&nbsp;Remote&nbsp;Dask</span></dd></dl>
  <dl><dt><a name="-smooth"><strong>smooth</strong></a>(data)</dt><dd><span class="code">#&nbsp;focal&nbsp;mean&nbsp;smooting</span></dd></dl>
  <dl><dt><a name="-visualise"><strong>visualise</strong></a>(data, cmap=None)</dt><dd><span class="code">#&nbsp;needs&nbsp;improvement,&nbsp;flexibility</span></dd></dl>
 </td></tr></table><p>
@@ -89,8 +91,6 @@
 <strong>__status__</strong> = 'Development'<br>
 <strong>catalog</strong> = &lt;Client id=microsoft-pc&gt;<br>
 <strong>chunk_size</strong> = 4096<br>
-<strong>client</strong> = &lt;Client: 'tcp://127.0.0.1:37883' processes=4 threads=12, memory=30.97 GiB&gt;<br>
-<strong>cluster</strong> = LocalCluster(33b0fbdd, 'tcp://127.0.0.1:37883', workers=4, threads=12, memory=30.97 GiB)<br>
 <strong>default_resolution</strong> = 100<br>
 <strong>padm</strong> =                       country  ...              ... -176.24805 -13.28860)))
 
