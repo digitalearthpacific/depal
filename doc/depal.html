@@ -5,7 +5,7 @@
 <title>Pydoc: module depal</title>
 <link rel="stylesheet" type="text/css" href="pydoc_data/_pydoc.css"></head><body>
             <div style='float:left'>
-                Python 3.11.3 [main, GCC 13.1.1 20230429]<br>Linux-6.4.3-arch1-1-x86_64-with-glibc2.37
+                Python 3.11.3 [main, GCC 13.1.1 20230429]<br>Linux-6.4.3-arch1-2-x86_64-with-glibc2.37
             </div>
             <div style='float:right'>
                 <div style='text-align:center'>
@@ -37,48 +37,51 @@
     
 <tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
 <td class="singlecolumn"><table><tr><td class="multicolumn"><a href="geopandas.html">geopandas</a><br>
+<a href="itertools.html">itertools</a><br>
 <a href="matplotlib.html">matplotlib</a><br>
 <a href="xrspatial.multispectral.html">xrspatial.multispectral</a><br>
 </td><td class="multicolumn"><a href="numpy.html">numpy</a><br>
 <a href="planetary_computer.html">planetary_computer</a><br>
 <a href="pandas.html">pandas</a><br>
-</td><td class="multicolumn"><a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
-<a href="pystac_client.html">pystac_client</a><br>
+<a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+</td><td class="multicolumn"><a href="pystac_client.html">pystac_client</a><br>
 <a href="rasterio.html">rasterio</a><br>
-</td><td class="multicolumn"><a href="rioxarray.html">rioxarray</a><br>
+<a href="rioxarray.html">rioxarray</a><br>
 <a href="stackstac.html">stackstac</a><br>
-<a href="xarray.html">xarray</a><br>
+</td><td class="multicolumn"><a href="xarray.html">xarray</a><br>
 </td></tr></table></td></tr></table><p>
 <table class="section">
 <tr class="decor functions-decor heading-text">
 <td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
     
 <tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
-<td class="singlecolumn"><dl><dt><a name="-coastal_clip"><strong>coastal_clip</strong></a>(aoi, data)</dt><dd><span class="code">#&nbsp;clip&nbsp;coastal&nbsp;buffer</span></dd></dl>
- <dl><dt><a name="-colour_maps"><strong>colour_maps</strong></a>()</dt></dl>
+<td class="singlecolumn"><dl><dt><a name="-cleanup"><strong>cleanup</strong></a>()</dt><dd><span class="code">#&nbsp;Cleanup&nbsp;Dask&nbsp;Resources</span></dd></dl>
+ <dl><dt><a name="-coastal_clip"><strong>coastal_clip</strong></a>(aoi, data, buffer=100)</dt><dd><span class="code">#&nbsp;Clip&nbsp;Coastal&nbsp;Buffer&nbsp;by&nbsp;Metres</span></dd></dl>
+ <dl><dt><a name="-colour_maps"><strong>colour_maps</strong></a>()</dt><dd><span class="code">#&nbsp;List&nbsp;Colour&nbsp;Maps</span></dd></dl>
  <dl><dt><a name="-get_area_from_geojson"><strong>get_area_from_geojson</strong></a>(geojson_file)</dt><dd><span class="code">#&nbsp;AOI&nbsp;from&nbsp;GeoJson&nbsp;File&nbsp;(use&nbsp;geojson.io)</span></dd></dl>
- <dl><dt><a name="-get_cloudless_mosaic"><strong>get_cloudless_mosaic</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='yearly')</dt><dd><span class="code">#&nbsp;median&nbsp;composite</span></dd></dl>
- <dl><dt><a name="-get_country_admin_boundary"><strong>get_country_admin_boundary</strong></a>(country, admin_type, admin)</dt></dl>
- <dl><dt><a name="-get_country_boundary"><strong>get_country_boundary</strong></a>(country)</dt></dl>
- <dl><dt><a name="-get_data"><strong>get_data</strong></a>(aoi, bands=[], collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='monthly')</dt><dd><span class="code">#&nbsp;xarray&nbsp;dataset&nbsp;from&nbsp;stac</span></dd></dl>
- <dl><dt><a name="-get_evi"><strong>get_evi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;evi</span></dd></dl>
- <dl><dt><a name="-get_gci"><strong>get_gci</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;gci</span></dd></dl>
- <dl><dt><a name="-get_global_land_cover"><strong>get_global_land_cover</strong></a>(name='io-lulc-9-class')</dt></dl>
- <dl><dt><a name="-get_latest_images"><strong>get_latest_images</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='daily')</dt><dd><span class="code">#&nbsp;latest&nbsp;RGB</span></dd></dl>
- <dl><dt><a name="-get_ndmi"><strong>get_ndmi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndmi</span></dd></dl>
- <dl><dt><a name="-get_ndvi"><strong>get_ndvi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndvi</span></dd></dl>
- <dl><dt><a name="-get_sipi"><strong>get_sipi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;sipi</span></dd></dl>
- <dl><dt><a name="-init"><strong>init</strong></a>(type='local', maxWorkers=2, resolution=100)</dt><dd><span class="code">#&nbsp;Initialise&nbsp;and&nbsp;configure&nbsp;Dask&nbsp;and&nbsp;resolution&nbsp;defaults</span></dd></dl>
- <dl><dt><a name="-list_boundary_types"><strong>list_boundary_types</strong></a>(country)</dt></dl>
- <dl><dt><a name="-list_countries"><strong>list_countries</strong></a>()</dt></dl>
- <dl><dt><a name="-list_country_boundary"><strong>list_country_boundary</strong></a>(country, admin_type)</dt></dl>
- <dl><dt><a name="-list_data_assets"><strong>list_data_assets</strong></a>(collection_name)</dt></dl>
- <dl><dt><a name="-list_data_bands"><strong>list_data_bands</strong></a>(collection_name='sentinel-2-l2a')</dt></dl>
- <dl><dt><a name="-list_data_sources"><strong>list_data_sources</strong></a>()</dt></dl>
- <dl><dt><a name="-list_global_land_cover"><strong>list_global_land_cover</strong></a>()</dt></dl>
- <dl><dt><a name="-save"><strong>save</strong></a>(data, file_name)</dt><dd><span class="code">#&nbsp;save&nbsp;data&nbsp;as&nbsp;COG&nbsp;series</span></dd></dl>
- <dl><dt><a name="-smooth"><strong>smooth</strong></a>(data)</dt><dd><span class="code">#&nbsp;focal&nbsp;mean&nbsp;smooting</span></dd></dl>
- <dl><dt><a name="-visualise"><strong>visualise</strong></a>(data, cmap=None)</dt><dd><span class="code">#&nbsp;needs&nbsp;improvement,&nbsp;flexibility</span></dd></dl>
+ <dl><dt><a name="-get_cloudless_mosaic"><strong>get_cloudless_mosaic</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='yearly')</dt><dd><span class="code">#&nbsp;median&nbsp;composite&nbsp;-&nbsp;Cloudless&nbsp;Mosaic&nbsp;achieved&nbsp;y&nbsp;combining&nbsp;images&nbsp;across&nbsp;time</span></dd></dl>
+ <dl><dt><a name="-get_country_admin_boundary"><strong>get_country_admin_boundary</strong></a>(country, admin_type, admin)</dt><dd><span class="code">#&nbsp;AOI&nbsp;from&nbsp;Country&nbsp;Administrative&nbsp;Boundary</span></dd></dl>
+ <dl><dt><a name="-get_country_boundary"><strong>get_country_boundary</strong></a>(country)</dt><dd><span class="code">#&nbsp;AOI&nbsp;from&nbsp;a&nbsp;Country&nbsp;Nation&nbsp;Boundary</span></dd></dl>
+ <dl><dt><a name="-get_data"><strong>get_data</strong></a>(aoi, bands=[], collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='monthly')</dt><dd><span class="code">#&nbsp;Xarray&nbsp;Dataset&nbsp;from&nbsp;STAC</span></dd></dl>
+ <dl><dt><a name="-get_evi"><strong>get_evi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;evi&nbsp;-&nbsp;Enhanced&nbsp;Vegetation</span></dd></dl>
+ <dl><dt><a name="-get_gci"><strong>get_gci</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;gci&nbsp;-&nbsp;Green&nbsp;Chlorophyll&nbsp;Index</span></dd></dl>
+ <dl><dt><a name="-get_global_land_cover"><strong>get_global_land_cover</strong></a>(aoi, name='io-lulc-9-class')</dt><dd><span class="code">#&nbsp;Get&nbsp;Global&nbsp;LandCover&nbsp;over&nbsp;AOI</span></dd></dl>
+ <dl><dt><a name="-get_latest_images"><strong>get_latest_images</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='daily')</dt><dd><span class="code">#&nbsp;Latest&nbsp;RGB&nbsp;Images</span></dd></dl>
+ <dl><dt><a name="-get_ndmi"><strong>get_ndmi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndmi&nbsp;-&nbsp;Normalised&nbsp;Difference&nbsp;Moisture&nbsp;Index</span></dd></dl>
+ <dl><dt><a name="-get_ndvi"><strong>get_ndvi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndvi&nbsp;-&nbsp;Normalised&nbsp;Difference&nbsp;Vegetation&nbsp;Index</span></dd></dl>
+ <dl><dt><a name="-get_ndwi"><strong>get_ndwi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndmi&nbsp;-&nbsp;Normalised&nbsp;Difference&nbsp;Water&nbsp;Index</span></dd></dl>
+ <dl><dt><a name="-get_sipi"><strong>get_sipi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;sipi&nbsp;-&nbsp;Structure&nbsp;Insensitive&nbsp;Pigment&nbsp;Index:&nbsp;which&nbsp;is&nbsp;helpful&nbsp;in&nbsp;early&nbsp;disease&nbsp;detection&nbsp;in&nbsp;vegetation.</span></dd></dl>
+ <dl><dt><a name="-init"><strong>init</strong></a>(type='remote', maxWorkers=12, resolution=100)</dt><dd><span class="code">#&nbsp;Initialise&nbsp;and&nbsp;Configure&nbsp;Dask&nbsp;and&nbsp;Resolution&nbsp;Defaults</span></dd></dl>
+ <dl><dt><a name="-list_boundary_types"><strong>list_boundary_types</strong></a>(country)</dt><dd><span class="code">#&nbsp;List&nbsp;Administrative&nbsp;Boundaries&nbsp;In&nbsp;a&nbsp;Country</span></dd></dl>
+ <dl><dt><a name="-list_countries"><strong>list_countries</strong></a>()</dt><dd><span class="code">#&nbsp;List&nbsp;Pacific&nbsp;Island&nbsp;Countries&nbsp;and&nbsp;Territories</span></dd></dl>
+ <dl><dt><a name="-list_country_boundary"><strong>list_country_boundary</strong></a>(country, admin_type)</dt><dd><span class="code">#&nbsp;List&nbsp;Areas/Locations&nbsp;of&nbsp;a&nbsp;Administration&nbsp;Type&nbsp;Within&nbsp;A&nbsp;Country</span></dd></dl>
+ <dl><dt><a name="-list_data_assets"><strong>list_data_assets</strong></a>(collection_name)</dt><dd><span class="code">#&nbsp;List&nbsp;Data&nbsp;Assets&nbsp;(non-spectral)&nbsp;and&nbsp;Common&nbsp;Names&nbsp;within&nbsp;a&nbsp;Data&nbsp;Source,&nbsp;Pipeline&nbsp;or&nbsp;Sensor</span></dd></dl>
+ <dl><dt><a name="-list_data_bands"><strong>list_data_bands</strong></a>(collection_name='sentinel-2-l2a')</dt><dd><span class="code">#&nbsp;List&nbsp;Data&nbsp;Bands&nbsp;and&nbsp;Common&nbsp;Names&nbsp;within&nbsp;a&nbsp;Data&nbsp;Source,&nbsp;Pipeline&nbsp;or&nbsp;Sensor</span></dd></dl>
+ <dl><dt><a name="-list_data_sources"><strong>list_data_sources</strong></a>()</dt><dd><span class="code">#&nbsp;List&nbsp;Data&nbsp;Sources,&nbsp;Pipelines&nbsp;and&nbsp;Models</span></dd></dl>
+ <dl><dt><a name="-list_global_land_cover"><strong>list_global_land_cover</strong></a>()</dt><dd><span class="code">#&nbsp;List&nbsp;Global&nbsp;LandCover&nbsp;DataSets</span></dd></dl>
+ <dl><dt><a name="-save"><strong>save</strong></a>(data, file_name)</dt><dd><span class="code">#&nbsp;Save&nbsp;Data&nbsp;as&nbsp;GeoTIFF/COG&nbsp;Series</span></dd></dl>
+ <dl><dt><a name="-smooth"><strong>smooth</strong></a>(data)</dt><dd><span class="code">#&nbsp;Focal&nbsp;Mean&nbsp;Smooting</span></dd></dl>
+ <dl><dt><a name="-visualise"><strong>visualise</strong></a>(data, cmap=None)</dt><dd><span class="code">#&nbsp;Visual&nbsp;Data&nbsp;by&nbsp;Colour&nbsp;Maps</span></dd></dl>
 </td></tr></table><p>
 <table class="section">
 <tr class="decor data-decor heading-text">

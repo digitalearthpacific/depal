@@ -26,8 +26,9 @@ import rioxarray
 from rasterio.crs import CRS
 from rasterio.plot import show
 import rasterio.features
+import itertools
 
-# global
+# Global
 padm = gpd.read_file("padm.gpkg", layer="padm")
 catalog = pystac.Client.open(
     "https://planetarycomputer.microsoft.com/api/stac/v1", modifier=pc.sign_inplace
@@ -36,10 +37,12 @@ pd.set_option("display.max_rows", None)
 pd.set_option("display.max_colwidth", None)
 default_resolution = 100
 chunk_size = 4096
+global cluster
+global client
 
 
-# Initialise and configure Dask and resolution defaults
-def init(type="local", maxWorkers=2, resolution=100):
+# Initialise and Configure Dask and Resolution Defaults
+def init(type="remote", maxWorkers=12, resolution=100):
     print("Initiating DEPAL...")
     default_resolution = resolution
     if type == "local":
@@ -50,6 +53,12 @@ def init(type="local", maxWorkers=2, resolution=100):
         client = cluster.get_client()
         cluster.adapt(minimum=1, maximum=maxWorkers)
     print(client)
+    print(cluster.dashboard_link)
+
+
+# Cleanup Dask Resources
+def cleanup():
+    cluster.close()
 
 
 # AOI from GeoJson File (use geojson.io)
@@ -59,10 +68,12 @@ def get_area_from_geojson(geojson_file):
     return area_of_interest
 
 
+# List Pacific Island Countries and Territories
 def list_countries():
     return pd.DataFrame(padm["country"].unique().tolist())
 
 
+# List Administrative Boundaries In a Country
 def list_boundary_types(country):
     cadm = padm[padm["country"] == country]
     data = (
@@ -70,9 +81,11 @@ def list_boundary_types(country):
         + cadm["type_2"].unique().tolist()
         + cadm["type_3"].unique().tolist()
     )
+    data = list(itertools.filterfalse(lambda x: x == "", data))
     return pd.DataFrame(data)
 
 
+# List Areas/Locations of a Administration Type Within A Country
 def list_country_boundary(country, admin_type):
     cadm = padm[padm["country"] == country]
     admin_types = (
@@ -80,15 +93,19 @@ def list_country_boundary(country, admin_type):
         + cadm["type_2"].unique().tolist()
         + cadm["type_3"].unique().tolist()
     )
+    admin_types = list(itertools.filterfalse(lambda x: x == "", admin_types))
     idx = admin_types.index(admin_type) + 1
     data = cadm["name_" + str(idx)].unique().tolist()
     return pd.DataFrame(data)
 
 
+# AOI from a Country Nation Boundary
 def get_country_boundary(country):
-    pass
+    cadm = padm[padm["country"] == country]
+    return cadm.dissolve().geometry
 
 
+# AOI from Country Administrative Boundary
 def get_country_admin_boundary(country, admin_type, admin):
     cadm = padm[padm["country"] == country]
     admin_types = (
@@ -101,6 +118,7 @@ def get_country_admin_boundary(country, admin_type, admin):
     return aadm.dissolve().geometry
 
 
+# List Data Sources, Pipelines and Models
 def list_data_sources():
     collections = catalog.get_children()
     data = {}
@@ -110,6 +128,7 @@ def list_data_sources():
     return pd.DataFrame(data.items())
 
 
+# List Data Bands and Common Names within a Data Source, Pipeline or Sensor
 def list_data_bands(collection_name="sentinel-2-l2a"):
     collection = catalog.get_child(collection_name)
     return pd.DataFrame.from_dict(
@@ -117,6 +136,7 @@ def list_data_bands(collection_name="sentinel-2-l2a"):
     )  # (collection.extra_fields["summaries"]["eo:bands"])
 
 
+# List Data Assets (non-spectral) and Common Names within a Data Source, Pipeline or Sensor
 def list_data_assets(collection_name):
     collection = catalog.get_child(collection_name)
     data = pd.DataFrame.from_dict(
@@ -125,7 +145,7 @@ def list_data_assets(collection_name):
     return data
 
 
-# xarray dataset from stac
+# Xarray Dataset from STAC
 def get_data(
     aoi,
     bands=[],
@@ -191,7 +211,7 @@ def get_data(
     return data
 
 
-# latest RGB
+# Latest RGB Images
 def get_latest_images(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -219,7 +239,7 @@ def get_latest_images(
     return true_color
 
 
-# median composite
+# median composite - Cloudless Mosaic achieved y combining images across time
 def get_cloudless_mosaic(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -247,7 +267,7 @@ def get_cloudless_mosaic(
     return median_composite
 
 
-# ndvi
+# ndvi - Normalised Difference Vegetation Index
 def get_ndvi(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -272,7 +292,7 @@ def get_ndvi(
     return ndvi
 
 
-# evi
+# evi - Enhanced Vegetation
 def get_evi(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -299,7 +319,7 @@ def get_evi(
     return evi
 
 
-# gci
+# gci - Green Chlorophyll Index
 def get_gci(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -324,7 +344,7 @@ def get_gci(
     return gci
 
 
-# sipi
+# sipi - Structure Insensitive Pigment Index: which is helpful in early disease detection in vegetation.
 def get_sipi(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -351,7 +371,7 @@ def get_sipi(
     return sipi
 
 
-# ndmi
+# ndmi - Normalised Difference Moisture Index
 def get_ndmi(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -376,17 +396,45 @@ def get_ndmi(
     return ndmi
 
 
-# focal mean smooting
+# ndmi - Normalised Difference Water Index
+def get_ndwi(
+    aoi,
+    collection_name="sentinel-2-l2a",
+    timeframe="2019-11-01/2022-11-31",
+    cloudcover=10,
+    resolution=default_resolution,
+    max=100,
+    period="monthly",
+):
+    data = get_data(
+        aoi,
+        bands=["B08", "B12"],
+        collection_name=collection_name,
+        timeframe=timeframe,
+        cloudcover=cloudcover,
+        resolution=resolution,
+        max=max,
+        period=period,
+    )
+    ndwi_aggs = [
+        (x.sel(band="nir") - x.sel(band="mir") / x.sel(band="nir") + x.sel(band="mir"))
+        for x in data
+    ]
+    ndwi = xr.concat(ndwi_aggs, dim="time")
+    return ndwi
+
+
+# Focal Mean Smooting
 def smooth(data):
     return data
 
 
-# clip coastal buffer
-def coastal_clip(aoi, data):
+# Clip Coastal Buffer by Metres
+def coastal_clip(aoi, data, buffer=100):
     return data
 
 
-# save data as COG series
+# Save Data as GeoTIFF/COG Series
 def save(data, file_name):
     for idx, x in enumerate(data):
         x.rio.to_raster(
@@ -394,23 +442,25 @@ def save(data, file_name):
         )
 
 
-# needs improvement, flexibility
+# Visual Data by Colour Maps
 def visualise(data, cmap=None):
     data.plot.imshow(x="x", y="y", col="time", cmap=cmap, col_wrap=5)
 
 
+# List Colour Maps
 def colour_maps():
     for cmap in plt.colormaps():
-        # print(cmap)
         fig, ax = plt.subplots(figsize=(4, 0.4))
         ax.set_title(cmap)
         col_map = plt.get_cmap(cmap)
         mpl.colorbar.ColorbarBase(ax, cmap=col_map, orientation="horizontal")
 
 
+# List Global LandCover DataSets
 def list_global_land_cover():
     pass
 
 
-def get_global_land_cover(name="io-lulc-9-class"):
+# Get Global LandCover over AOI
+def get_global_land_cover(aoi, name="io-lulc-9-class"):
     pass
