@@ -11,6 +11,7 @@ import pandas as pd
 import pystac_client as pystac
 import planetary_computer as pc
 from pystac.extensions.projection import ProjectionExtension as proj
+from pystac.extensions.item_assets import ItemAssetsExtension
 import numpy as np
 import xarray as xr
 import xrspatial.multispectral as ms
@@ -20,6 +21,7 @@ from dask.distributed import Client
 from dask.distributed import LocalCluster
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from collections import OrderedDict
 from shapely.geometry import shape
 import rioxarray
@@ -27,6 +29,7 @@ from rasterio.crs import CRS
 from rasterio.plot import show
 import rasterio.features
 import itertools
+import cartopy.crs as ccrs
 
 # Global
 padm = gpd.read_file("padm.gpkg", layer="padm")
@@ -37,14 +40,17 @@ pd.set_option("display.max_rows", None)
 pd.set_option("display.max_colwidth", None)
 default_resolution = 100
 chunk_size = 4096
-global cluster
-global client
+cluster = None
+client = None
+
 
 
 # Initialise and Configure Dask and Resolution Defaults
-def init(type="remote", maxWorkers=12, resolution=100):
+def init(type="local", maxWorkers=4, resolution=100):
     print("Initiating DEPAL...")
     default_resolution = resolution
+    global cluster
+    global client
     if type == "local":
         cluster = LocalCluster()
         client = Client(cluster)
@@ -417,7 +423,7 @@ def get_ndwi(
         period=period,
     )
     ndwi_aggs = [
-        (x.sel(band="nir") - x.sel(band="mir") / x.sel(band="nir") + x.sel(band="mir"))
+        (x.sel(band="nir") - x.sel(band="swir22") / x.sel(band="nir") + x.sel(band="swir22"))
         for x in data
     ]
     ndwi = xr.concat(ndwi_aggs, dim="time")
@@ -433,20 +439,7 @@ def smooth(data):
 def coastal_clip(aoi, data, buffer=100):
     return data
 
-
-# Save Data as GeoTIFF/COG Series
-def save(data, file_name):
-    for idx, x in enumerate(data):
-        x.rio.to_raster(
-            file_name + "_" + str(idx) + ".tif", driver="COG", dtype="int16"
-        )
-
-
-# Visual Data by Colour Maps
-def visualise(data, cmap=None):
-    data.plot.imshow(x="x", y="y", col="time", cmap=cmap, col_wrap=5)
-
-
+        
 # List Colour Maps
 def colour_maps():
     for cmap in plt.colormaps():
@@ -458,9 +451,143 @@ def colour_maps():
 
 # List Global LandCover DataSets
 def list_global_land_cover():
-    pass
+    collections = catalog.get_children()
+    data = {}
+    for c in collections:
+        if (str.__contains__(c.title.lower(), "land cover") or str.__contains__(c.title.lower(), "worldcover")):
+            data[c.id] = c.title
+    data = dict(OrderedDict(sorted(data.items())))
+    print("only io-lulc-9-class and io-lulc are supported.")
+    return pd.DataFrame(data.items())
+
 
 
 # Get Global LandCover over AOI
-def get_global_land_cover(aoi, name="io-lulc-9-class"):
-    pass
+def get_global_land_cover(aoi, name="io-lulc-9-class"): #io-lulc-9-class, io-lulc
+    bbox = rasterio.features.bounds(aoi)
+    search = catalog.search(
+        bbox=bbox,        
+        collections=[name]        
+    )
+    items = search.item_collection()
+    listing = []
+    for i in items:
+        listing.append(i.id)
+    print(listing)
+    
+    item = items[0]
+    epsg = proj.ext(item).epsg
+    nodata = item.assets["data"].extra_fields["raster:bands"][0]["nodata"]
+    
+    stack = stackstac.stack(
+        items, epsg=epsg, dtype=np.ubyte, fill_value=nodata, bounds_latlon=bbox, sortby_date=False,        
+    )
+    if name == "io-lulc-9-class":     
+        stack = stack.assign_coords(
+            time=pd.to_datetime([item.properties["start_datetime"] for item in items])
+            .tz_convert(None)
+            .to_numpy()
+        ).sortby("time")
+    
+    merged = None
+    
+    
+    if name=="io-lulc-9-class":
+        merged = stack.squeeze().compute()   
+        collection = catalog.get_collection(name)
+        ia = ItemAssetsExtension.ext(collection)
+        x = ia.item_assets["data"]
+        class_names = {x["summary"]: x["values"][0] for x in x.properties["file:values"]}
+        global values_to_classes
+        values_to_classes = {v: k for k, v in class_names.items()}
+        class_count = len(class_names)
+        with rasterio.open(item.assets["data"].href) as src:
+            colormap_def = src.colormap(1)  # get metadata colormap for band 1
+            colormap = [
+                np.array(colormap_def[i]) / 255 for i in range(max(class_names.values()))
+            ]
+        global cmap
+        cmap = ListedColormap(colormap)
+        vmin = 0
+        vmax = max(class_names.values())
+        epsg = merged.epsg.item()
+        p = merged.plot(
+            subplot_kws=dict(
+            projection=ccrs.epsg(epsg)),
+            col="time",
+            transform=ccrs.epsg(epsg),
+            cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
+            figsize=(16, 6),
+            col_wrap=3
+        )
+        ticks = np.linspace(0.5, 10.5, 11)
+        labels = [values_to_classes.get(i, "") for i in range(cmap.N)]
+        p.cbar.set_ticks(ticks, labels=labels)
+        p.cbar.set_label("Class")
+        
+    if name=="io-lulc":
+        merged = stackstac.mosaic(stack, dim="time", axis=None, nodata=0).squeeze().compute()
+        class_names = merged.coords["label:classes"].item()["classes"]
+        class_count = len(class_names)
+        with rasterio.open(item.assets["data"].href) as src:
+            colormap_def = src.colormap(1)  # get metadata colormap for band 1
+            colormap = [
+                np.array(colormap_def[i]) / 255 for i in range(class_count)
+            ]        
+        cmap = ListedColormap(colormap)
+        fig, ax = plt.subplots(
+            figsize=(12, 6), dpi=125, subplot_kw=dict(projection=ccrs.epsg(epsg)), frameon=False
+        )
+        p = merged.plot(
+            ax=ax,
+            transform=ccrs.epsg(epsg),
+            cmap=cmap,
+            add_colorbar=False,
+            vmin=0,
+            vmax=class_count,
+        )
+        ax.set_title("ESRI Land Cover 2023")
+        cbar = plt.colorbar(p)
+        cbar.set_ticks(range(class_count))
+        cbar.set_ticklabels(class_names)
+    
+    return merged
+
+# Annual Charting of Land Cover Classes
+def chart_land_cover(data):
+    df = data.stack(pixel=("y", "x")).T.to_pandas()
+    counts = (
+        df.stack()
+        .rename("class")
+        .reset_index()
+        .groupby("time")["class"]
+        .value_counts()       
+        .rename("count")
+        .swaplevel()
+        .sort_index(ascending=False)
+        .rename(lambda x: x.year, level="time")
+    )
+    colors = cmap(counts.index.get_level_values("class") / cmap.N)
+    fig = plt.figure(figsize=(12, 10))
+    ax = counts.rename(values_to_classes, level="class").plot.barh(color=colors, width=0.9)
+    ax.set(xlabel="Class count", title="Land Cover Distribution Per Year");    
+    plt.show()
+ 
+
+# Visual Data by Colour Maps
+def visualise(data, cmap=None):
+    data.plot.imshow(x="x", y="y", col="time", cmap=cmap, col_wrap=5)
+
+    
+# Save Data as GeoTIFF/COG Series
+def save(data, file_name):
+    for idx, x in enumerate(data):
+        x.rio.to_raster(
+            file_name + "_" + str(idx) + ".tif", driver="COG", dtype="int16"
+        )
+
+    
+    
+    

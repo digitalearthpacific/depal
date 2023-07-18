@@ -19,7 +19,9 @@
    warnings.filterwarnings('ignore')
    dep.init()
    ```
-7. Refer to https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf for DEPAL API and Functions.
+7. Ensure that your notebook ends with `dep.cleanup()` on it's last cell to ensure all resources are relesed.
+7. #### Alternatively, right click on *template.ipynb* and select duplicate to start working on a new notebook with the defaults above already in place. ####  
+8. Refer to https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf for DEPAL API and Functions.
 
 ### Updating
 
@@ -41,8 +43,8 @@ By default, DEPAL will default to image processing output of **100m2**. To chang
 
 to eg:
 
-`dep.init(resolution=10)` for 10m/2 output
+`dep.init("remote", resolution=10)` for 10m/2 output
 
 For larger areas of interest, you may need to scale up the number workers by, eg:
 
-`dep.init(resolution=10, maxWorkers=24)`
+`dep.init("remote", maxWorkers=24, resolution=10, )`
