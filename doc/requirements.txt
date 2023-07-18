@@ -12,4 +12,5 @@ xarray-spatial
 dask[distributed]
 dask-gateway
 rioxarray
+cartopy
 
