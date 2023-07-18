@@ -6,6 +6,8 @@ __version__ = "0.0.1"
 __email__ = "sachindras@spc.int"
 __status__ = "Development"
 
+from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
 import pystac_client as pystac
@@ -32,7 +34,7 @@ import itertools
 import cartopy.crs as ccrs
 
 # Global
-padm = gpd.read_file("padm.gpkg", layer="padm")
+padm = gpd.read_file(Path(__file__).parent / "padm.gpkg", layer="padm")
 catalog = pystac.Client.open(
     "https://planetarycomputer.microsoft.com/api/stac/v1", modifier=pc.sign_inplace
 )
@@ -191,7 +193,7 @@ def get_data(
         )
         .where(lambda x: x > 0, other=np.nan)  # sentinel-2 uses 0 as nodata
         .assign_coords(
-            band=lambda x: x.common_name.rename("band"),  # use common names
+            #band=lambda x: x.common_name.rename("band"),  # use common names
             time=lambda x: x.time.dt.round("D"),
             # time=pd.to_datetime([item.properties["datetime"] for item in items])
             #  .tz_convert(None)
