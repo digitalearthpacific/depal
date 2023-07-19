@@ -17,6 +17,7 @@ from pystac.extensions.item_assets import ItemAssetsExtension
 import numpy as np
 import xarray as xr
 import xrspatial.multispectral as ms
+from xrspatial.focal import mean, focal_stats, hotspots
 import stackstac
 from dask_gateway import GatewayCluster
 from dask.distributed import Client
@@ -154,7 +155,7 @@ def list_data_assets(collection_name):
     return data
 
 
-# Xarray Dataset from STAC
+# Xarray Dataset from STAC by Period Yearly, Quarterly, Monthly, Weekly, Daily
 def get_data(
     aoi,
     bands=[],
@@ -319,7 +320,7 @@ def get_evi(
         period=period,
     )
     median_aggs = [
-        ms.evi(x.sel(band="nir"), x.sel(band="blue"), x.sel(band="red")) for x in data
+        ms.evi(x.sel(band="nir"), x.sel(band="red"), x.sel(band="blue")) for x in data
     ]
     evi = xr.concat(median_aggs, dim="time")
     return evi
@@ -630,7 +631,13 @@ def smooth(data):
 
 # Plot TimeSeries for Indices
 def plot(data):
-    return data
+    data.mean(dim=["x", "y"]).plot(size=8)
+    # plt.plot(date, mean_ndvi, color= 'green',label='Vegetation Index')
+    plt.legend(loc="best")
+    plt.title("Vegetation Index Trend")
+    plt.ylabel("Mean Index")
+    plt.grid()
+    plt.show()
 
 
 # Clip Coastal Buffer by Metres
