@@ -41,6 +41,7 @@ catalog = pystac.Client.open(
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_colwidth", None)
 default_resolution = 100
+default_max = 100
 chunk_size = 4096
 cluster = None
 client = None
@@ -160,7 +161,7 @@ def get_data(
     timeframe="2023-01-01/2023-12-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=30,
+    max=max,
     period="monthly",
 ):
     bbox = rasterio.features.bounds(aoi)
@@ -195,9 +196,6 @@ def get_data(
         .assign_coords(
             band=lambda x: x.common_name.rename("band"),  # use common names
             time=lambda x: x.time.dt.round("D"),
-            # time=pd.to_datetime([item.properties["datetime"] for item in items])
-            #  .tz_convert(None)
-            #  .to_numpy()
         )
     )
 
@@ -225,7 +223,7 @@ def get_latest_images(
     timeframe="2023-01-01/2023-12-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=30,
+    max=default_max,
     period="daily",
 ):
     data = get_data(
@@ -253,7 +251,7 @@ def get_cloudless_mosaic(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="yearly",
 ):
     data = get_data(
@@ -281,7 +279,7 @@ def get_ndvi(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="monthly",
 ):
     data = get_data(
@@ -306,7 +304,7 @@ def get_evi(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="monthly",
 ):
     data = get_data(
@@ -333,7 +331,7 @@ def get_gci(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="monthly",
 ):
     data = get_data(
@@ -358,7 +356,7 @@ def get_sipi(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="monthly",
 ):
     data = get_data(
@@ -385,7 +383,7 @@ def get_ndmi(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="monthly",
 ):
     data = get_data(
@@ -410,7 +408,7 @@ def get_ndwi(
     timeframe="2019-11-01/2022-11-31",
     cloudcover=10,
     resolution=default_resolution,
-    max=100,
+    max=default_max,
     period="monthly",
 ):
     data = get_data(
@@ -433,6 +431,7 @@ def get_ndwi(
     ]
     ndwi = xr.concat(ndwi_aggs, dim="time")
     return ndwi
+
 
 # List Colour Maps
 def colour_maps():
@@ -587,26 +586,51 @@ def visualise(data, cmap=None):
 
 # Save Single Data as GeoTIFF/COG Series
 def save_single(data, file_name):
-    data = data.transpose('time', 'band', 'y', 'x').squeeze()
-    data.rio.to_raster(
-        file_name + ".tif", driver="COG"
-    )
+    data = data.transpose("time", "band", "y", "x").squeeze()
+    data.rio.to_raster(file_name + ".tif", driver="COG")
+
 
 # Save Multiple Outputs as GeoTIFF/COG Series
 def save_multiple(data, file_name):
-    data = data.transpose('time', 'band', 'y', 'x').squeeze()
+    data = data.transpose("time", "band", "y", "x").squeeze()
     for idx, x in enumerate(data):
-        x.rio.to_raster(
-            file_name + "_" + str(idx) + ".tif", driver="COG"
-        )
+        x.rio.to_raster(file_name + "_" + str(idx) + ".tif", driver="COG")
 
-# Focal Mean Smooting
-def smooth(data):
+
+# Generate Annual Landcover Mosaic with Multiple Bands for ML Classification
+def get_landcover_mosaic(
+    aoi,
+    year,
+    bands=["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A"],
+    resolution=10,
+    max=10000,
+    cloudcover=10,
+    collection_name="sentinel-2-l2a",
+):
+    data = get_data(
+        aoi,
+        timeframe=year,
+        period="yearly",
+        bands=bands,
+        resolution=resolution,
+        max=max,
+        collection_name=collection_name,
+        cloudcover=cloudcover,
+    )
     return data
+
+
+# Focal Mean Smoothing and Noise Removal
+def smooth(data):
+    mean_aggs = [mean(x) for x in data]
+    data = xr.concat(mean_aggs, dim="time")
+    return data
+
 
 # Plot TimeSeries for Indices
 def plot(data):
     return data
+
 
 # Clip Coastal Buffer by Metres
 def coastal_clip(aoi, data, buffer=100):

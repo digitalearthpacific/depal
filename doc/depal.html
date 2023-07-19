@@ -64,11 +64,12 @@
  <dl><dt><a name="-get_cloudless_mosaic"><strong>get_cloudless_mosaic</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='yearly')</dt><dd><span class="code">#&nbsp;median&nbsp;composite&nbsp;-&nbsp;Cloudless&nbsp;Mosaic&nbsp;achieved&nbsp;y&nbsp;combining&nbsp;images&nbsp;across&nbsp;time</span></dd></dl>
  <dl><dt><a name="-get_country_admin_boundary"><strong>get_country_admin_boundary</strong></a>(country, admin_type, admin)</dt><dd><span class="code">#&nbsp;AOI&nbsp;from&nbsp;Country&nbsp;Administrative&nbsp;Boundary</span></dd></dl>
  <dl><dt><a name="-get_country_boundary"><strong>get_country_boundary</strong></a>(country)</dt><dd><span class="code">#&nbsp;AOI&nbsp;from&nbsp;a&nbsp;Country&nbsp;Nation&nbsp;Boundary</span></dd></dl>
- <dl><dt><a name="-get_data"><strong>get_data</strong></a>(aoi, bands=[], collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='monthly')</dt><dd><span class="code">#&nbsp;Xarray&nbsp;Dataset&nbsp;from&nbsp;STAC</span></dd></dl>
+ <dl><dt><a name="-get_data"><strong>get_data</strong></a>(aoi, bands=[], collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=&lt;built-in function max&gt;, period='monthly')</dt><dd><span class="code">#&nbsp;Xarray&nbsp;Dataset&nbsp;from&nbsp;STAC</span></dd></dl>
  <dl><dt><a name="-get_evi"><strong>get_evi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;evi&nbsp;-&nbsp;Enhanced&nbsp;Vegetation</span></dd></dl>
  <dl><dt><a name="-get_gci"><strong>get_gci</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;gci&nbsp;-&nbsp;Green&nbsp;Chlorophyll&nbsp;Index</span></dd></dl>
  <dl><dt><a name="-get_global_land_cover"><strong>get_global_land_cover</strong></a>(aoi, name='io-lulc-9-class')</dt><dd><span class="code">#&nbsp;Get&nbsp;Global&nbsp;LandCover&nbsp;over&nbsp;AOI</span></dd></dl>
- <dl><dt><a name="-get_latest_images"><strong>get_latest_images</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=30, period='daily')</dt><dd><span class="code">#&nbsp;Latest&nbsp;RGB&nbsp;Images</span></dd></dl>
+ <dl><dt><a name="-get_landcover_mosaic"><strong>get_landcover_mosaic</strong></a>(aoi, year, bands=['B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A'], resolution=10, max=10000, cloudcover=10, collection_name='sentinel-2-l2a')</dt><dd><span class="code">#&nbsp;Generate&nbsp;Annual&nbsp;Landcover&nbsp;Mosaic&nbsp;with&nbsp;Multiple&nbsp;Bands&nbsp;for&nbsp;ML&nbsp;Classification</span></dd></dl>
+ <dl><dt><a name="-get_latest_images"><strong>get_latest_images</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2023-01-01/2023-12-31', cloudcover=10, resolution=100, max=100, period='daily')</dt><dd><span class="code">#&nbsp;Latest&nbsp;RGB&nbsp;Images</span></dd></dl>
  <dl><dt><a name="-get_ndmi"><strong>get_ndmi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndmi&nbsp;-&nbsp;Normalised&nbsp;Difference&nbsp;Moisture&nbsp;Index</span></dd></dl>
  <dl><dt><a name="-get_ndvi"><strong>get_ndvi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndvi&nbsp;-&nbsp;Normalised&nbsp;Difference&nbsp;Vegetation&nbsp;Index</span></dd></dl>
  <dl><dt><a name="-get_ndwi"><strong>get_ndwi</strong></a>(aoi, collection_name='sentinel-2-l2a', timeframe='2019-11-01/2022-11-31', cloudcover=10, resolution=100, max=100, period='monthly')</dt><dd><span class="code">#&nbsp;ndmi&nbsp;-&nbsp;Normalised&nbsp;Difference&nbsp;Water&nbsp;Index</span></dd></dl>
@@ -81,8 +82,10 @@
  <dl><dt><a name="-list_data_bands"><strong>list_data_bands</strong></a>(collection_name='sentinel-2-l2a')</dt><dd><span class="code">#&nbsp;List&nbsp;Data&nbsp;Bands&nbsp;and&nbsp;Common&nbsp;Names&nbsp;within&nbsp;a&nbsp;Data&nbsp;Source,&nbsp;Pipeline&nbsp;or&nbsp;Sensor</span></dd></dl>
  <dl><dt><a name="-list_data_sources"><strong>list_data_sources</strong></a>()</dt><dd><span class="code">#&nbsp;List&nbsp;Data&nbsp;Sources,&nbsp;Pipelines&nbsp;and&nbsp;Models</span></dd></dl>
  <dl><dt><a name="-list_global_land_cover"><strong>list_global_land_cover</strong></a>()</dt><dd><span class="code">#&nbsp;List&nbsp;Global&nbsp;LandCover&nbsp;DataSets</span></dd></dl>
- <dl><dt><a name="-save"><strong>save</strong></a>(data, file_name)</dt><dd><span class="code">#&nbsp;Save&nbsp;Data&nbsp;as&nbsp;GeoTIFF/COG&nbsp;Series</span></dd></dl>
- <dl><dt><a name="-smooth"><strong>smooth</strong></a>(data)</dt><dd><span class="code">#&nbsp;Focal&nbsp;Mean&nbsp;Smooting</span></dd></dl>
+ <dl><dt><a name="-plot"><strong>plot</strong></a>(data)</dt><dd><span class="code">#&nbsp;Plot&nbsp;TimeSeries&nbsp;for&nbsp;Indices</span></dd></dl>
+ <dl><dt><a name="-save_multiple"><strong>save_multiple</strong></a>(data, file_name)</dt><dd><span class="code">#&nbsp;Save&nbsp;Multiple&nbsp;Outputs&nbsp;as&nbsp;GeoTIFF/COG&nbsp;Series</span></dd></dl>
+ <dl><dt><a name="-save_single"><strong>save_single</strong></a>(data, file_name)</dt><dd><span class="code">#&nbsp;Save&nbsp;Single&nbsp;Data&nbsp;as&nbsp;GeoTIFF/COG&nbsp;Series</span></dd></dl>
+ <dl><dt><a name="-smooth"><strong>smooth</strong></a>(data)</dt><dd><span class="code">#&nbsp;Focal&nbsp;Mean&nbsp;Smoothing&nbsp;and&nbsp;Noise&nbsp;Removal</span></dd></dl>
  <dl><dt><a name="-visualise"><strong>visualise</strong></a>(data, cmap=None)</dt><dd><span class="code">#&nbsp;Visual&nbsp;Data&nbsp;by&nbsp;Colour&nbsp;Maps</span></dd></dl>
 </td></tr></table><p>
 <table class="section">
@@ -98,6 +101,7 @@
 <strong>chunk_size</strong> = 4096<br>
 <strong>client</strong> = None<br>
 <strong>cluster</strong> = None<br>
+<strong>default_max</strong> = 100<br>
 <strong>default_resolution</strong> = 100<br>
 <strong>padm</strong> =                       country  ...              ... -176.24805 -13.28860)))
 
