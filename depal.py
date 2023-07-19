@@ -212,8 +212,8 @@ def get_data(
         data = data.resample(time="1MS").median("time", keep_attrs=True).compute()
     if period == "weekly":
         data = data.resample(time="1W").median("time", keep_attrs=True).compute()
-    if period == "daily":
-        data = data.resample(time="1D").median("time", keep_attrs=True).compute()
+    # if period == "daily":
+    #    data = data.resample(time="1D").median("time", keep_attrs=True).compute()
 
     return data
 
@@ -583,7 +583,7 @@ def chart_land_cover(data):
 
 # Visual Data by Colour Maps
 def visualise(data, cmap=None):
-    data.plot.imshow(x="x", y="y", col="time", cmap=cmap, col_wrap=5)
+    data.plot.imshow(x="x", y="y", col="time", cmap=cmap, col_wrap=4)
 
 
 # Save Single Data as GeoTIFF/COG Series
@@ -629,14 +629,31 @@ def smooth(data):
     return data
 
 
-# Plot TimeSeries for Indices
+# Plot Mean TimeSeries for Indices
 def plot(data):
     data.mean(dim=["x", "y"]).plot(size=8)
-    # plt.plot(date, mean_ndvi, color= 'green',label='Vegetation Index')
     plt.legend(loc="best")
     plt.title("Vegetation Index Trend")
     plt.ylabel("Mean Index")
     plt.grid()
+    plt.show()
+
+
+# Plot Cloudiness Percentage Over AOI over Timeframe eg: "2020/2022"
+def plot_cloudiness(aoi, timeframe, collection_name="sentinel-2-l2a"):
+    bbox = rasterio.features.bounds(aoi)
+    search = catalog.search(
+        collections=[collection_name],
+        bbox=bbox,
+        datetime=timeframe,
+    )
+    items = search.get_all_items()
+    df = gpd.GeoDataFrame.from_features(items.to_dict())
+    df["datetime"] = pd.to_datetime(df["datetime"])
+    ts = df.set_index("datetime").sort_index()["eo:cloud_cover"].rolling(7).mean()
+    ts.plot(title="Cloud Cover Percentage (7-scene Rolling Average)")
+    plt.grid()
+    plt.figure(figsize=(14, 10))
     plt.show()
 
 
