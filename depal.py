@@ -121,6 +121,7 @@ def get_country_admin_boundary(country, admin_type, admin):
         + cadm["type_2"].unique().tolist()
         + cadm["type_3"].unique().tolist()
     )
+    admin_types = list(itertools.filterfalse(lambda x: x == "", admin_types))
     idx = admin_types.index(admin_type) + 1
     aadm = cadm[cadm["name_" + str(idx)] == admin]
     return aadm.dissolve().geometry
