@@ -73,7 +73,7 @@ def cleanup():
 # AOI from GeoJson File (use geojson.io)
 def get_area_from_geojson(geojson_file):
     local = gpd.read_file(geojson_file)
-    area_of_interest = local.geometry[0]
+    area_of_interest = local
     return area_of_interest
 
 
@@ -124,7 +124,7 @@ def get_country_admin_boundary(country, admin_type, admin):
     )
     admin_types = list(itertools.filterfalse(lambda x: x == "", admin_types))
     idx = admin_types.index(admin_type) + 1
-    aadm = cadm[cadm["name_" + str(idx)] == admin]
+    aadm = cadm[cadm["name_" + str(idx)] == admin]    
     return aadm.dissolve().geometry
 
 
@@ -212,7 +212,7 @@ def get_data(
         data = data.resample(time="1MS").median("time", keep_attrs=True).compute()
     if period == "weekly":
         data = data.resample(time="1W").median("time", keep_attrs=True).compute()
-    # if period == "daily":
+    #if period == "daily":
     #    data = data.resample(time="1D").median("time", keep_attrs=True).compute()
 
     return data
@@ -242,7 +242,7 @@ def get_latest_images(
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
     ]
-    true_color = xr.concat(true_color_aggs, dim="time")
+    true_color = xr.concat(true_color_aggs, dim=data.coords["time"])
     return true_color
 
 
@@ -270,7 +270,7 @@ def get_cloudless_mosaic(
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
     ]
-    median_composite = xr.concat(median_aggs, dim="time")
+    median_composite = xr.concat(median_aggs, dim=data.coords["time"])#dim="time")
     return median_composite
 
 
@@ -631,13 +631,12 @@ def smooth(data):
 
 # Plot Mean TimeSeries for Indices
 def plot(data):
-    data.mean(dim=["x", "y"]).plot(size=8)
-    plt.legend(loc="best")
-    plt.title("Vegetation Index Trend")
-    plt.ylabel("Mean Index")
+    data.mean(dim=['x', 'y']).plot(size=8)    
+    plt.legend(loc='best')
+    plt.title('Vegetation Index Trend')
+    plt.ylabel('Mean Index')    
     plt.grid()
     plt.show()
-
 
 # Plot Cloudiness Percentage Over AOI over Timeframe eg: "2020/2022"
 def plot_cloudiness(aoi, timeframe, collection_name="sentinel-2-l2a"):
@@ -653,9 +652,8 @@ def plot_cloudiness(aoi, timeframe, collection_name="sentinel-2-l2a"):
     ts = df.set_index("datetime").sort_index()["eo:cloud_cover"].rolling(7).mean()
     ts.plot(title="Cloud Cover Percentage (7-scene Rolling Average)")
     plt.grid()
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(14,10))
     plt.show()
-
 
 # Clip Coastal Buffer by Metres
 def coastal_clip(aoi, data, buffer=100):
