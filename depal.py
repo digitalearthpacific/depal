@@ -193,7 +193,7 @@ def get_data(
         )
         .where(lambda x: x > 0, other=np.nan)  # sentinel-2 uses 0 as nodata
         .assign_coords(
-            #band=lambda x: x.common_name.rename("band"),  # use common names
+            band=lambda x: x.common_name.rename("band"),  # use common names
             time=lambda x: x.time.dt.round("D"),
             # time=pd.to_datetime([item.properties["datetime"] for item in items])
             #  .tz_convert(None)
@@ -434,17 +434,6 @@ def get_ndwi(
     ndwi = xr.concat(ndwi_aggs, dim="time")
     return ndwi
 
-
-# Focal Mean Smooting
-def smooth(data):
-    return data
-
-
-# Clip Coastal Buffer by Metres
-def coastal_clip(aoi, data, buffer=100):
-    return data
-
-
 # List Colour Maps
 def colour_maps():
     for cmap in plt.colormaps():
@@ -596,9 +585,29 @@ def visualise(data, cmap=None):
     data.plot.imshow(x="x", y="y", col="time", cmap=cmap, col_wrap=5)
 
 
-# Save Data as GeoTIFF/COG Series
-def save(data, file_name):
+# Save Single Data as GeoTIFF/COG Series
+def save_single(data, file_name):
+    data = data.transpose('time', 'band', 'y', 'x').squeeze()
+    data.rio.to_raster(
+        file_name + ".tif", driver="COG"
+    )
+
+# Save Multiple Outputs as GeoTIFF/COG Series
+def save_multiple(data, file_name):
+    data = data.transpose('time', 'band', 'y', 'x').squeeze()
     for idx, x in enumerate(data):
         x.rio.to_raster(
-            file_name + "_" + str(idx) + ".tif", driver="COG", dtype="int16"
+            file_name + "_" + str(idx) + ".tif", driver="COG"
         )
+
+# Focal Mean Smooting
+def smooth(data):
+    return data
+
+# Plot TimeSeries for Indices
+def plot(data):
+    return data
+
+# Clip Coastal Buffer by Metres
+def coastal_clip(aoi, data, buffer=100):
+    return data
