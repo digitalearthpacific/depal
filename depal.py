@@ -645,6 +645,9 @@ def get_landcover_mosaic(
         coastal_clip=coastal_clip,
     )
     data = data.squeeze()
+    # if coastal_clip == True:
+    #    data = data.dropna(dim="x")
+    #    data = data.dropna(dim="y")
     return data
 
 

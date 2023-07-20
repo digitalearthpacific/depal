@@ -1,6 +1,8 @@
 import geopandas as gpd
 import pandas as pd
 import xarray as xr
+import numpy as np
+
 
 def add_image_values(pts: gpd.GeoDataFrame, image: xr.DataArray) -> gpd.GeoDataFrame:
     """Add the values of the image at each point location to the input GeoDataFrame"""
@@ -15,7 +17,7 @@ def add_image_values(pts: gpd.GeoDataFrame, image: xr.DataArray) -> gpd.GeoDataF
 def get_model_prediction(model, training_image: xr.DataArray) -> xr.DataArray:
     # Prediction needs to be done on a 2-d ndarray (that is, rows are raster cells and columns are values for each band),
     # so "stack" the geographic x & y values into a single dimension.
-    training_image_2d = training_image.stack(z=('y','x'))
+    training_image_2d = training_image.stack(z=("y", "x"))
     X_pred = training_image_2d.values.transpose()
 
     # Run the prediction. This will take a minute or two.
@@ -32,7 +34,7 @@ def get_model_prediction(model, training_image: xr.DataArray) -> xr.DataArray:
     prediction_1d = training_image_2d.isel(band=1)
 
     # 2. Assigning the predictions above to its values
-    prediction_1d.values = y_pred.astype('int16')
+    prediction_1d.values = y_pred.astype("int16")
 
     # "unstack" the z-dimension into x & y, and save as a raster.
     # This creates an xarray image with the same dimensions as the input
@@ -51,11 +53,11 @@ def get_overlay(array: xr.DataArray, cmap) -> ImageOverlay:
     """Create an rgb image overlay for the given DataArray and colormap.
     `array` should be a 2-d array."""
     rgb = (cmap(array.rio.reproject(3857))[:, :, :4] * 255).astype(np.uint8)
-    
-    # Make the first band transparent if the first three are 255. 
+
+    # Make the first band transparent if the first three are 255.
     # I'm assuming that's the "default" value for cmap(value)
     # I could be wrong and there could be an obvious way to do this.
-    mask = np.all(rgb[:,:,:3] == 255, axis=2)
+    mask = np.all(rgb[:, :, :3] == 255, axis=2)
     rgb[mask, 3] = 0
 
     image_pil = Image.fromarray(rgb)
@@ -64,7 +66,7 @@ def get_overlay(array: xr.DataArray, cmap) -> ImageOverlay:
     image_bytes = BytesIO()
 
     # Save the image as PNG to the BytesIO object
-    image_pil.save(image_bytes, format='PNG')
+    image_pil.save(image_bytes, format="PNG")
 
     # Get the PNG data from the BytesIO object
     image_data = b64encode(image_bytes.getvalue()).decode("ascii")
