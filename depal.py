@@ -124,7 +124,7 @@ def get_country_admin_boundary(country, admin_type, admin):
     )
     admin_types = list(itertools.filterfalse(lambda x: x == "", admin_types))
     idx = admin_types.index(admin_type) + 1
-    aadm = cadm[cadm["name_" + str(idx)] == admin]    
+    aadm = cadm[cadm["name_" + str(idx)] == admin]
     return aadm.dissolve().geometry
 
 
@@ -165,6 +165,7 @@ def get_data(
     resolution=default_resolution,
     max=max,
     period="monthly",
+    coastal_clip=False,
 ):
     bbox = rasterio.features.bounds(aoi)
     search = catalog.search(
@@ -212,8 +213,11 @@ def get_data(
         data = data.resample(time="1MS").median("time", keep_attrs=True).compute()
     if period == "weekly":
         data = data.resample(time="1W").median("time", keep_attrs=True).compute()
-    #if period == "daily":
+    # if period == "daily":
     #    data = data.resample(time="1D").median("time", keep_attrs=True).compute()
+
+    if coastal_clip == True:
+        data = do_coastal_clip(aoi, data)
 
     return data
 
@@ -227,6 +231,7 @@ def get_latest_images(
     resolution=default_resolution,
     max=default_max,
     period="daily",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -237,16 +242,19 @@ def get_latest_images(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     true_color_aggs = [
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
     ]
     true_color = xr.concat(true_color_aggs, dim=data.coords["time"])
+    true_color = true_color.drop_duplicates(dim="time")
+    true_color = true_color.squeeze()
     return true_color
 
 
-# median composite - Cloudless Mosaic achieved y combining images across time
+# median composite - Cloudless Mosaic achieved combining images across time
 def get_cloudless_mosaic(
     aoi,
     collection_name="sentinel-2-l2a",
@@ -255,6 +263,7 @@ def get_cloudless_mosaic(
     resolution=default_resolution,
     max=default_max,
     period="yearly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -265,12 +274,13 @@ def get_cloudless_mosaic(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     median_aggs = [
         ms.true_color(x.sel(band="red"), x.sel(band="green"), x.sel(band="blue"))
         for x in data
     ]
-    median_composite = xr.concat(median_aggs, dim=data.coords["time"])#dim="time")
+    median_composite = xr.concat(median_aggs, dim=data.coords["time"])  # dim="time")
     return median_composite
 
 
@@ -283,6 +293,7 @@ def get_ndvi(
     resolution=default_resolution,
     max=default_max,
     period="monthly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -293,6 +304,7 @@ def get_ndvi(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     median_aggs = [ms.ndvi(x.sel(band="nir"), x.sel(band="red")) for x in data]
     ndvi = xr.concat(median_aggs, dim="time")
@@ -308,6 +320,7 @@ def get_evi(
     resolution=default_resolution,
     max=default_max,
     period="monthly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -318,6 +331,7 @@ def get_evi(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     median_aggs = [
         ms.evi(x.sel(band="nir"), x.sel(band="red"), x.sel(band="blue")) for x in data
@@ -335,6 +349,7 @@ def get_gci(
     resolution=default_resolution,
     max=default_max,
     period="monthly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -345,6 +360,7 @@ def get_gci(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     median_aggs = [ms.gci(x.sel(band="nir"), x.sel(band="green")) for x in data]
     gci = xr.concat(median_aggs, dim="time")
@@ -360,6 +376,7 @@ def get_sipi(
     resolution=default_resolution,
     max=default_max,
     period="monthly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -370,6 +387,7 @@ def get_sipi(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     median_aggs = [
         ms.sipi(x.sel(band="nir"), x.sel(band="red"), x.sel(band="blue")) for x in data
@@ -387,6 +405,7 @@ def get_ndmi(
     resolution=default_resolution,
     max=default_max,
     period="monthly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -397,6 +416,7 @@ def get_ndmi(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     median_aggs = [ms.ndmi(x.sel(band="nir"), x.sel(band="swir16")) for x in data]
     ndmi = xr.concat(median_aggs, dim="time")
@@ -412,6 +432,7 @@ def get_ndwi(
     resolution=default_resolution,
     max=default_max,
     period="monthly",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -422,6 +443,7 @@ def get_ndwi(
         resolution=resolution,
         max=max,
         period=period,
+        coastal_clip=coastal_clip,
     )
     ndwi_aggs = [
         (
@@ -559,7 +581,7 @@ def get_global_land_cover(aoi, name="io-lulc-9-class"):  # io-lulc-9-class, io-l
 
 
 # Annual Charting of Land Cover Classes
-def chart_land_cover(data):
+def chart_global_land_cover(data):
     df = data.stack(pixel=("y", "x")).T.to_pandas()
     counts = (
         df.stack()
@@ -587,6 +609,7 @@ def visualise(data, cmap=None):
 
 
 # Save Single Data as GeoTIFF/COG Series
+# eg: d = data.sel(time="2023-01-23").expand_dims(dim="time"); dep.save_single(d, "tmp")
 def save_single(data, file_name):
     data = data.transpose("time", "band", "y", "x").squeeze()
     data.rio.to_raster(file_name + ".tif", driver="COG")
@@ -608,6 +631,7 @@ def get_landcover_mosaic(
     max=10000,
     cloudcover=10,
     collection_name="sentinel-2-l2a",
+    coastal_clip=False,
 ):
     data = get_data(
         aoi,
@@ -618,7 +642,9 @@ def get_landcover_mosaic(
         max=max,
         collection_name=collection_name,
         cloudcover=cloudcover,
+        coastal_clip=coastal_clip,
     )
+    data = data.squeeze()
     return data
 
 
@@ -631,12 +657,13 @@ def smooth(data):
 
 # Plot Mean TimeSeries for Indices
 def plot(data):
-    data.mean(dim=['x', 'y']).plot(size=8)    
-    plt.legend(loc='best')
-    plt.title('Vegetation Index Trend')
-    plt.ylabel('Mean Index')    
+    data.mean(dim=["x", "y"]).plot(size=8)
+    plt.legend(loc="best")
+    plt.title("Vegetation Index Trend")
+    plt.ylabel("Mean Index")
     plt.grid()
     plt.show()
+
 
 # Plot Cloudiness Percentage Over AOI over Timeframe eg: "2020/2022"
 def plot_cloudiness(aoi, timeframe, collection_name="sentinel-2-l2a"):
@@ -650,11 +677,15 @@ def plot_cloudiness(aoi, timeframe, collection_name="sentinel-2-l2a"):
     df = gpd.GeoDataFrame.from_features(items.to_dict())
     df["datetime"] = pd.to_datetime(df["datetime"])
     ts = df.set_index("datetime").sort_index()["eo:cloud_cover"].rolling(7).mean()
-    ts.plot(title="Cloud Cover Percentage (7-scene Rolling Average)")
+    ts.plot(title="Cloud Cover Percentage (7-Scene Rolling Average)")
     plt.grid()
-    plt.figure(figsize=(14,10))
+    plt.figure(figsize=(14, 10))
     plt.show()
 
-# Clip Coastal Buffer by Metres
-def coastal_clip(aoi, data, buffer=100):
-    return data
+
+# Clip Coastal Buffer (by 100 Metres Intervals)
+def do_coastal_clip(aoi, data, buffer=0):
+    buffer = 0.001 * buffer  # 100 metres
+    aoi = aoi.buffer(buffer)
+    clipped = data.rio.clip(aoi.to_crs(data.rio.crs), all_touched=True)
+    return clipped
