@@ -1,27 +1,28 @@
-## How To Use DEPAL within Digital Earth Pacific MS Planetary Computer
+# How To Use DEPAL within Digital Earth Pacific MS Planetary Computer
 
-### Initial Setup *(only needs to be done once)*
+## Initial Setup *(only needs to be done once)*
 
 1. Login to https://dep-staging.westeurope.cloudapp.azure.com/ with your provisioned access.
 2. Open terminal by choosing on the menu: File, New -> Terminal
 3. Clone the DEPAL library repository by copying and pasting the following command:
-   
+
    `git clone https://github.com/digitalearthpacific/depal`
 4. Change into the depal folder by running in the terminal:
 
    `cd depal`
 5. Create a new notebook by clicking File, New -> Notebook
 6. Copy and paste the following into the first cell to start using DEPAL:
-   
+
+   ``` python
+      import depal as dep
+      import warnings
+      warnings.filterwarnings('ignore')
+      dep.init()
    ```
-   import depal as dep
-   import warnings
-   warnings.filterwarnings('ignore')
-   dep.init()
-   ```
+
 7. Ensure that your notebook ends with `dep.cleanup()` on it's last cell to ensure all resources are relesed.
-7. #### Alternatively, right click on *template.ipynb* and select duplicate to start working on a new notebook with the defaults above already in place. ####  
-8. Refer to https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf for DEPAL API and Functions.
+8. **####** Alternatively, right click on *template.ipynb* and select duplicate to start working on a new notebook with the defaults above already in place. **####**  
+9. Refer to [depal.pdf](https://github.com/digitalearthpacific/depal/blob/main/doc/depal.pdf) for DEPAL API and Functions.
 
 ### Updating
 

@@ -3,6 +3,7 @@
 ## Digital Earth Pacific Abstraction Library
 
 ### Overview
+
 The PanGeo environment used by **Digital Earth Pacific** consists of several powerful libraries which have a high-learning curve,
 such as *Xarray* for multi-dimensional raster data processing, *GeoPandas* for vector data processing, *Rasterio* for
 data input/output, *TorchGeo* for machine learning pipelines etc. In addition, users need to have intermediate to
@@ -17,8 +18,4 @@ by Pacific Island Countrie's national, maritime and administrative boundaries, r
 undertaking multi spectral analysis like NDVI and creating cloud composites, etc. DEP will continue to extend
 and simplify the abstraction library based on end-user feedback.
 
-See [Usage](https://github.com/digitalearthpacific/depal/blob/main/doc/usage.md) to get started.
-
-
-
-
+See [Usage](doc/usage.md) to get started.
