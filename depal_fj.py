@@ -37,6 +37,7 @@ from pandas import Series
 from planetary_computer import sign_url
 from pystac_client import Client
 from xarray import Dataset
+import glob
 
 country = "Fiji"
 DEP_CATALOG = "https://stac.staging.digitalearthpacific.org"
@@ -142,7 +143,7 @@ def get_annual_rgb(aoi, year):
 def plot_rgb(data):
     bands=["B04", "B03", "B02"]
     da = data[bands].to_array().compute()
-    plot = da.plot.imshow(x="x", y="y", robust=True)
+    plot = da.plot.imshow(x="x", y="y", robust=True, size=10)
     return plot
 
 def get_ndvi(aoi): #2017-2024
@@ -268,3 +269,12 @@ def predict_xr(
         output_xr = _predict_func(model, input_xr, persist, proba, clean).compute()
 
     return output_xr
+
+def do_coastal_clip(aoi, data, buffer=0):
+    buffer = 0.001 * buffer  # 100 metres
+    aoi = aoi.buffer(buffer)
+    clipped = data.rio.clip(aoi.to_crs(data.rio.crs), all_touched=True)
+    return clipped
+
+def list_data_points():
+    return  pd.DataFrame(glob.glob("Fiji/fj_lulc_data*"))
