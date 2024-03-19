@@ -25,7 +25,7 @@ from rasterio.plot import show
 import rasterio.features
 import itertools
 import cartopy.crs as ccrs
-
+import rioxarray
 import dask.array as da
 import joblib
 import xarray as xr
@@ -146,10 +146,146 @@ def plot_rgb(data):
     plot = da.plot.imshow(x="x", y="y", robust=True, size=10)
     return plot
 
-def get_ndvi(aoi): #2017-2024
-    pass
+#NDVI (Normalised Difference Vegetation Index) = (NIR-red)/(NIR+red)
+def get_ndvi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B04", "B08"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = (data["B08"] - data["B04"]) / (data["B08"] + data["B04"])
+    return data
+
+#EVI Enhanced Vegetation Index
+def get_evi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B04", "B08" ,"B02"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = (2.5 * (data["B08"] - data["B04"])) * (
+        (data["B08"] + (6 * (data["B04"]) - (7.5 * (data["B02"]))))
+    ) + 1
+    return data
+
+#MNDWI (Mean Normalised Difference Water Index) = (Green – SWIR) / (Green + SWIR)
+def get_mndwi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B03", "B12"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = (data["B03"] - data["B12"]) / (data["B03"] + data["B12"])
+    return data
+
+#NDMI (Normalised Difference Moisture Index)
+def get_ndmi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B08", "B11"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = ((data["B08"]) - (data["B11"])) / ((data["B08"]) + (data["B11"]))
+    return data
+
+#BSI - Bare Soil Index
+def get_bsi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B08", "B11"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = ((data["B08"]) - (data["B11"])) / ((data["B08"]) + (data["B11"]))
+    return data
+
+#NDBI (Normalised Difference Built-up Index) (B06 - B05) / (B06 + B05); # - built up ratio of vegetation to paved surface 
+def get_ndbi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B05", "B06"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = ((data["B06"]) - (data["B05"])) / ((data["B06"]) + (data["B05"]))
+    return data
+
+#SAVI (Standard Vegetation Index) = (800nm−670nm) / (800nm+670nm+L(1+L)) # where L = 0.5
+def get_savi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+    bands = ["B04", "B07"]
+    bbox = rasterio.features.bounds(aoi)
+    client = Client.open(DEP_CATALOG)
+    items = client.search(
+        collections=["dep_s2_geomad"],
+        bbox=bbox,
+        datetime=year
+    ).items()
+    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    data = (data["B07"] - data["B04"]) / (
+        data["B07"] + data["B04"] + 0.5 * (1 + 0.5)
+    )
+    return data
+
+#SIPI (Structure Insensitive Pigment Index) = (800nm−670nm) / (800nm+670nm+L(1+L)) # where L = 0.5
+#def get_sipi(aoi, year="2017-01-01/2024-12-31"): #2017-2024
+#    bands = ["B08", "B01", "B04"]
+#    bbox = rasterio.features.bounds(aoi)
+#    client = Client.open(DEP_CATALOG)
+#    items = client.search(
+#        collections=["dep_s2_geomad"],
+#        bbox=bbox,
+#        datetime=year
+#    ).items()
+#    data = load(items, bands=bands, chunks=chunks, bbox=bbox, resolution=100)
+#    data = data.resample(time="1AS").median("time", keep_attrs=True).compute()
+    #let index = (B08 - B01) / (B08 - B04);
+#    data = (data["B08"] - data["B01"]) / (data["B08"] - data["B04"])
+#    return data
 
 
+#timeseries plotting of indicies
+def plot(data, cmap="viridis"): #RdYlGn #
+    data.plot.imshow(x="x", y="y", col="time", col_wrap=3, cmap=cmap, robust=True)
+
+    
+def save_single(data, file_name):
+    #data = data.transpose("time", "band", "y", "x").squeeze()
+    data.rio.to_raster(file_name + ".tif", driver="COG")
+
+# Save Multiple Outputs as GeoTIFF/COG Series
+def save_multiple(data, file_name):
+    #data = data.transpose("time", "band", "y", "x").squeeze()
+    for idx, x in enumerate(data):
+        x.rio.to_raster(file_name + "_" + str(idx) + ".tif", driver="COG")
 
 
 #ML Utils
