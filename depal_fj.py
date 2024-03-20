@@ -38,6 +38,8 @@ from planetary_computer import sign_url
 from pystac_client import Client
 from xarray import Dataset
 import glob
+import warnings
+warnings.filterwarnings('ignore')
 
 country = "Fiji"
 DEP_CATALOG = "https://stac.staging.digitalearthpacific.org"
@@ -414,3 +416,29 @@ def do_coastal_clip(aoi, data, buffer=0):
 
 def list_data_points():
     return  pd.DataFrame(glob.glob("Fiji/fj_lulc_data*"))
+
+def get_stats(tif_file, aoi):
+    da = rioxarray.open_rasterio(tif_file)
+    ds = da.to_dataset('band')
+    ds = ds.rename({1: 'class_id'})
+    ds = do_coastal_clip(aoi, ds, buffer=0)
+    da = ds.to_array().compute()
+    summary = da.groupby(da).count().compute()
+    summary = summary.to_pandas()
+    summary = summary.drop(0)
+    summary = summary.to_frame()
+    df = summary
+    df.rename( columns={0 :'class_count'}, inplace=True )
+    total = df.sum().to_numpy()[0]
+    df['percent'] = (df['class_count'] / total) * 100
+    df['class'] = ""
+    df.loc[df.index == 1, 'class'] = 'Cropland'
+    df.loc[df.index == 2, 'class'] = 'Forest'
+    df.loc[df.index == 3, 'class'] = 'Grassland'
+    df.loc[df.index == 4, 'class'] = 'Settlement'
+    df.loc[df.index == 5, 'class'] = 'Mangroves/Wetland'
+    df.loc[df.index == 6, 'class'] = 'Water'
+    df.loc[df.index == 7, 'class'] = 'Bareland/Other'
+    df = df[['class', 'class_count', 'percent']]
+    return df
+
