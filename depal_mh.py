@@ -1,4 +1,5 @@
 """depal.py: Digital Earth Pacific (Abstration Library)"""
+
 __author__ = "Sachindra Singh"
 __copyright__ = "Pacific Community (SPC)"
 __license__ = "GPL"
@@ -49,7 +50,8 @@ import glob
 from odc.stac import load
 from flox.xarray import xarray_reduce
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 
 # Global
@@ -69,6 +71,7 @@ client = None
 # Initialise and Configure Dask and Resolution Defaults
 def init(maxWorkers=8):
     from dask_gateway import Gateway
+
     global cluster
     global client
     gateway = Gateway(auth="jupyterhub")
@@ -147,10 +150,12 @@ def get_country_boundary(country):
     cadm = padm[padm["country"] == country]
     return cadm.dissolve().geometry
 
-#BBOX from Area Of Interest (AOI)
+
+# BBOX from Area Of Interest (AOI)
 def get_bbox(aoi):
     bbox = rasterio.features.bounds(aoi)
     return bbox
+
 
 # AOI from Country Administrative Boundary
 def get_country_admin_boundary(country, admin_type, admin):
@@ -723,7 +728,8 @@ def plot_cloudiness(aoi, timeframe, collection_name="sentinel-2-l2a"):
     plt.figure(figsize=(14, 10))
     plt.show()
 
-#ML Utils
+
+# ML Utils
 def get_image_values(points: GeoDataFrame, data: Dataset) -> GeoDataFrame:
     """Get values for each of the image bands at each of the points."""
     # Reproject points to the same CRS as the data
@@ -747,6 +753,7 @@ def get_image_values(points: GeoDataFrame, data: Dataset) -> GeoDataFrame:
         variables.index = points.index
 
     return variables
+
 
 def predict_xr(
     model, input_xr, chunk_size=None, persist=False, proba=False, clean=False
@@ -849,6 +856,7 @@ def do_coastal_clip(aoi, data, buffer=0):
     clipped = data.rio.clip(aoi.to_crs(data.rio.crs), all_touched=True)
     return clipped
 
+
 # August 2024 Workshop
 def get_annual_geomad(aoi, year="2023"):
     bbox = get_bbox(aoi)
@@ -857,25 +865,26 @@ def get_annual_geomad(aoi, year="2023"):
     client = pystac.Client.open(catalog)
     # Search for Sentinel-2 GeoMAD data
     items = client.search(
-        collections=["dep_s2_geomad"],
-        bbox=bbox,
-        datetime=year
+        collections=["dep_s2_geomad"], bbox=bbox, datetime=year
     ).items()
     print(f"Found {len(items)} items")
     # Load the data
-    data = load(items, chunks=chunks, bbox=bbox, resolution=10, crs="EPSG:4326").squeeze("time")
-    #coastal clip
-    #data = dep.do_coastal_clip(aoi, data, buffer=0)
+    data = load(
+        items, chunks=chunks, bbox=bbox, resolution=10, crs="EPSG:4326"
+    ).squeeze("time")
+    # coastal clip
+    # data = dep.do_coastal_clip(aoi, data, buffer=0)
     return data
 
 
 def list_data_points():
-    return  pd.DataFrame(glob.glob("Fiji/fj_lulc_data*"))
+    return pd.DataFrame(glob.glob("Fiji/fj_lulc_data*"))
+
 
 def get_stats_old(tif_file, aoi):
     da = rioxarray.open_rasterio(tif_file)
-    ds = da.to_dataset('band')
-    ds = ds.rename({1: 'class_id'})
+    ds = da.to_dataset("band")
+    ds = ds.rename({1: "class_id"})
     ds = do_coastal_clip(aoi, ds, buffer=0)
     da = ds.to_array().compute()
     summary = da.groupby(da).count().compute()
@@ -883,19 +892,20 @@ def get_stats_old(tif_file, aoi):
     summary = summary.drop(0)
     summary = summary.to_frame()
     df = summary
-    df.rename( columns={0 :'class_count'}, inplace=True )
+    df.rename(columns={0: "class_count"}, inplace=True)
     total = df.sum().to_numpy()[0]
-    df['percent'] = (df['class_count'] / total) * 100
-    df['class'] = ""
-    df.loc[df.index == 1, 'class'] = 'Cropland'
-    df.loc[df.index == 2, 'class'] = 'Forest'
-    df.loc[df.index == 3, 'class'] = 'Grassland'
-    df.loc[df.index == 4, 'class'] = 'Settlement'
-    df.loc[df.index == 5, 'class'] = 'Mangroves/Wetland'
-    df.loc[df.index == 6, 'class'] = 'Water'
-    df.loc[df.index == 7, 'class'] = 'Bareland/Other'
-    df = df[['class', 'class_count', 'percent']]
+    df["percent"] = (df["class_count"] / total) * 100
+    df["class"] = ""
+    df.loc[df.index == 1, "class"] = "Cropland"
+    df.loc[df.index == 2, "class"] = "Forest"
+    df.loc[df.index == 3, "class"] = "Grassland"
+    df.loc[df.index == 4, "class"] = "Settlement"
+    df.loc[df.index == 5, "class"] = "Mangroves/Wetland"
+    df.loc[df.index == 6, "class"] = "Water"
+    df.loc[df.index == 7, "class"] = "Bareland/Other"
+    df = df[["class", "class_count", "percent"]]
     return df
+
 
 def get_stats(tif_file):
     da = rioxarray.open_rasterio(
@@ -934,27 +944,24 @@ def get_stats(tif_file):
     df = df[["class", "class_count", "percent"]]
     return df
 
+
 def get_lulc_class_colours():
     classes = [
         [1, "forest", "#064a00"],
         [2, "cropland", "#ffce33"],
         [3, "grassland", "#d7ffa0"],
-        [4, "shrubland", "#07b28d"],
+        [4, "shrubland", "#808000"],
         [5, "settlements", "#d10a1e"],
         [6, "bareland", "#968640"],
         [7, "water", "#71a8ff90"],
         [8, "mangroves", "#07b28d"],
-        [9, "wetlands", "#07b28d"],
-        [10, "sand", "#07b28d"],
-        [11, "seagrass", "#07b28d"],
-        [12, "coral", "#07b28d"],
-        [13, "seaweed", "#07b28d"],
-        [14, "rock", "#07b28d"],
-        [15, "rubble", "#07b28d"],
-        [16, "other", "#07b28d"]
+        [9, "wetlands", "#008080"],
+        [10, "sand", "#F4A460"],
+        [11, "seagrass", "#7FFFD4"],
+        [12, "coral", "#FF7F50"],
+        [13, "seaweed", "#556B2F"],
+        [14, "rock", "#808080"],
+        [15, "rubble", "#A9A9A9"],
+        [16, "other", "#800080"],
     ]
     return classes
-
-    
-    
-
