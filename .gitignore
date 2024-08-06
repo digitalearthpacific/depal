@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-*.sh
+#*.sh
 tmp/
 .DS_Store
 *.gpkg-shm
