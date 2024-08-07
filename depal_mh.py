@@ -962,6 +962,7 @@ def get_lulc_class_colours():
         [13, "seaweed", "#556B2F"],
         [14, "rock", "#808080"],
         [15, "rubble", "#A9A9A9"],
-        [16, "other", "#800080"],
+        [16, "mining", "#C3192b"],
+        [17, "other", "#800080"],
     ]
     return classes
