@@ -915,7 +915,7 @@ def get_stats(tif_file):
         chunks=True,
     ).squeeze()
     # Replace these with your class values; I tested this on ESA
-    classes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    classes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
     summary = xarray_reduce(da, da, func="count", expected_groups=classes)
     summary = summary.to_pandas()
     # summary = summary.drop(0)
@@ -940,7 +940,8 @@ def get_stats(tif_file):
     df.loc[df.index == 13, "class"] = "seaweed"
     df.loc[df.index == 14, "class"] = "rock"
     df.loc[df.index == 15, "class"] = "rubble"
-    df.loc[df.index == 16, "class"] = "other"
+    df.loc[df.index == 16, "class"] = "mining"
+    df.loc[df.index == 17, "class"] = "other"
     df = df[["class", "class_count", "percent"]]
     return df
 
