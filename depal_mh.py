@@ -921,6 +921,8 @@ def get_stats(tif_file):
     # summary = summary.drop(0)
     summary = summary.to_frame()
     df = summary
+    #remove water class
+    df = df.drop(7)
     df.rename(columns={0: "class_count"}, inplace=True)
     total = df.sum().to_numpy()[0]
     df["percent"] = (df["class_count"] / total) * 100
