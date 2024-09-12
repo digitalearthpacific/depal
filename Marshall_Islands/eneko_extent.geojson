@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-"name": "eneko_extent",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-"features": [
-{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 171.276916160339596, 7.142293704468012 ], [ 171.276916160339596, 7.154610987238834 ], [ 171.291082884967892, 7.154610987238834 ], [ 171.291082884967892, 7.142293704468012 ], [ 171.276916160339596, 7.142293704468012 ] ] ] ] } }
-]
-}
