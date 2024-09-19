@@ -888,15 +888,15 @@ def get_stats(tif_file):
         default_name="class_1",
         chunks=True,
     ).squeeze()
-    #classes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+    # classes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
     classes = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     summary = xarray_reduce(da, da, func="count", expected_groups=classes)
     summary = summary.to_pandas()
     # summary = summary.drop(0)
     summary = summary.to_frame()
     df = summary
-    #remove water class
-    #df = df.drop(7)
+    # remove water class
+    # df = df.drop(7)
     df.rename(columns={0: "class_count"}, inplace=True)
     total = df.sum().to_numpy()[0]
     df["percent"] = (df["class_count"] / total) * 100
@@ -904,12 +904,18 @@ def get_stats(tif_file):
     df.loc[df.index == 1, "class"] = "forest"
     df.loc[df.index == 2, "class"] = "cropland"
     df.loc[df.index == 3, "class"] = "grassland"
-    df.loc[df.index == 4, "class"] = "settlement"
-    df.loc[df.index == 5, "class"] = "bareland"
-    df.loc[df.index == 6, "class"] = "water"
-    df.loc[df.index == 7, "class"] = "sand"
-    df.loc[df.index == 8, "class"] = "rock"
-    df.loc[df.index == 9, "class"] = "coral"
+    df.loc[df.index == 4, "class"] = "shrubland"
+    df.loc[df.index == 5, "class"] = "settlements"
+    df.loc[df.index == 6, "class"] = "bareland"
+    df.loc[df.index == 7, "class"] = "water"
+    df.loc[df.index == 8, "class"] = "wetlands"
+    df.loc[df.index == 9, "class"] = "sand"
+    df.loc[df.index == 10, "class"] = "coral"
+    df.loc[df.index == 11, "class"] = "seaweed"
+    df.loc[df.index == 12, "class"] = "rock"
+    df.loc[df.index == 13, "class"] = "mining"
+    df.loc[df.index == 14, "class"] = "invasives"
+
     df = df[["class", "class_count", "percent"]]
     return df
 
@@ -919,20 +925,20 @@ def get_lulc_class_colours():
         [1, "forest", "#064a00"],
         [2, "cropland", "#ffce33"],
         [3, "grassland", "#d7ffa0"],
-        [4, "settlement", "#d10a1e"],
-        [5, "bareland", "#968640"],
-        [6, "water", "#71a8ff90"],
-        [7, "sand", "#F4A460"],
-        [8, "rock", "#808080"],
-        [9, "coral", "#FF7F50"],
-        #[4, "shrubland", "#808000"],
-        #[8, "mangroves", "#07b28d"],
-        #[9, "wetlands", "#008080"],
-        #[11, "seagrass", "#7FFFD4"],
-        #[12, "coral", "#FF7F50"],
-        #[13, "seaweed", "#556B2F"],
-        #[15, "rubble", "#A9A9A9"],
-        #[16, "mining", "#C3192b"],
-        #[17, "other", "#800080"],
+        [4, "shrubland", "#808000"],
+        [5, "settlements", "#d10a1e"],
+        [6, "bareland", "#968640"],
+        [7, "water", "#71a8ff90"],
+        [8, "wetlands", "#008080"],
+        [9, "sand", "#F4A460"],
+        [10, "coral", "#FF7F50"],
+        [11, "seaweed", "#556B2F"],
+        [12, "rock", "#808080"],
+        [13, "mining", "#C3192b"],
+        [14, "invasives", "#800080"],
+        # [15, "rubble", "#A9A9A9"],
+        # [17, "other", "#800080"],
+        # [8, "mangroves", "#07b28d"],
+        # [11, "seagrass", "#7FFFD4"],
     ]
     return classes
