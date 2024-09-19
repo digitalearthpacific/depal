@@ -889,14 +889,16 @@ def get_stats(tif_file):
         chunks=True,
     ).squeeze()
     # classes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
-    classes = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    classes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+   
     summary = xarray_reduce(da, da, func="count", expected_groups=classes)
     summary = summary.to_pandas()
     # summary = summary.drop(0)
     summary = summary.to_frame()
     df = summary
     # remove water class
-    # df = df.drop(7)
+    df = df.drop(7)
+    
     df.rename(columns={0: "class_count"}, inplace=True)
     total = df.sum().to_numpy()[0]
     df["percent"] = (df["class_count"] / total) * 100
